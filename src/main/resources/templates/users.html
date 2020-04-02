@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<!-- Bootstrap 4 -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<!-- jQuery -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- BS4 JavaScript -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	
+<!-- Font Awesome icons -->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<body>
+
+<nav class="navbar navbar-light" style="background-color: #6f8de5;">
+  <a class="navbar-brand mb-0 h2" href="../users" style="color: #ffffff"><i class="fa fa-users"></i> Benutzerverwaltung</a>
+  
+  <form action="#" th:action="@{/users}" method="GET">
+  <div class="input-group input-group-sm float-right">
+  <input type="search" class="form-control mr-sm-2" placeholder="E-Mail-Suche..." aria-label="E-Mail-Suche..." name=email aria-describedby="basic-addon2">
+  <div class="input-group-append">
+      <button class="btn btn-light my-2 my-sm-0" type="submit">E-Mail-Suche...</button>
+  </div>
+  </div>
+  </form>
+</nav>
+
+
+<div class="container">
+
+<div class="row">
+	<div class="col-sm-5">
+	<p style="padding-top:10px;padding-bottom:25px" class="float-left">Applikation f√ºr die Erfassung und L√∂schung von Benutzern.</p>
+	</div>
+	<div class="col-sm">
+	</div>
+	<div class="col float-right" style="display:inline-block" th:if="${result}" th:class="${'alert ' + alertClass}">
+	<span th:text="${result}"></span>
+	<button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+</div>
+
+	<div class="row">
+	 <div class="col-bg-2">
+		<!-- Button ˆffnet Benutzer-Formular -->
+		<button type="button" class="btn btn-outline-primary" data-toggle="modal"
+			data-target="#myModal"><span class="fa fa-user"></span>  Benutzer erfassen</button>
+		</div>
+		
+		<div class="col-sm-8">
+		</div>
+			<div class="col-sm float-right">
+			<!-- Dropdown f¸r das Sortieren von Benutzern -->
+<div class="dropdown">
+  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Sortieren
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item"  th:href="@{/users?page={id}(sortBy=firstName,id=${users.number + 1})}" >Vorname</a>
+    <a class="dropdown-item"  th:href="@{/users?page={id}(sortBy=lastName,id=${users.number + 1})}" >Nachname</a>
+    <a class="dropdown-item"  th:href="@{/users?page={id}(sortBy=email,id=${users.number + 1})}" >E-Mail</a>
+    <a class="dropdown-item"  th:href="@{/users?page={id}(sortBy=userId,id=${users.number + 1})}" >ID</a>
+    <a class="dropdown-item"  th:href="@{/users?page={id}(sortBy=role,id=${users.number + 1})}" >Rolle</a>
+      </div>
+</div>
+</div>
+
+	</div>
+	<br />
+  <div class="row">
+		<!-- Tabelle mit Liste aller User -->
+		<table class="table table-striped table-hover table-condensed">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>E-Mail</th>
+					<th>Vorname</th>
+					<th>Nachname</th>
+					<th>Erstelldatum</th>
+					<th>Rolle</th>
+			        <th>L√∂schen</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user : ${users}">
+					<td th:text="${user.userId}"></td>
+					<td th:text="${user.email}"></td>
+					<td th:text="${user.firstName}"></td>
+					<td th:text="${user.lastName}"></td>
+					<td th:text="${user.created}"></td>
+					<td th:text="${user.role}"></td>
+					<td><a th:href="@{'/delete/' + ${user.userId}}" class="btn btn-secondary btn-sm" role="button"><span class="fa fa-trash"></span></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+  <div class="row">
+
+<!-- Paginierung der User-Liste. (erstellt mit Hilfe von https://attacomsian.com/blog/spring-boot-thymeleaf-pagination ) -->
+<nav aria-label="Pagination" th:if="${users.totalPages gt 0}">
+    <ul class="pagination justify-content-left">
+        <li class="page-item" th:classappend="${users.number eq 0} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/users?page={id}(email=${emailParam},sortBy=${sortByParam},id=${users.number lt 2 ? 1 : users.number})}"
+               aria-label="Previous" title="Previous Page" data-toggle="tooltip">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item" th:classappend="${i eq users.number + 1} ? 'active'"
+            th:each="i : ${#numbers.sequence( 1, users.totalPages, 1)}">
+            <a class="page-link" th:href="@{/users?page={id}(email=${emailParam},sortBy=${sortByParam}, id=${i})}" th:text="${i}"
+               th:title="${'Page '+ i}" data-toggle="tooltip"></a>
+        </li>
+        <li class="page-item" th:classappend="${users.number + 1 eq users.totalPages} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/users?page={id}(email=${emailParam},sortBy=${sortByParam},id=${users.number + 2})}"
+               aria-label="Next" title="Next Page" data-toggle="tooltip">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+</div>
+	
+
+
+	<!-- Modal und Formular f¸r die Erfassung eines Benutzers -->
+	<div class="modal fade" id="myModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">Neuen Benutzer erfassen</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<div align="center">
+						<br />
+						<form action="#" th:action="@{/save}" th:object="${user}" method="post">
+
+							<div class="input-group mb-3">
+								<input type="text" th:field="*{firstName}" class="form-control"
+									placeholder="Vorname" required> <input type="text"
+									th:field="*{lastName}" class="form-control"
+									placeholder="Nachname" required>
+							</div>
+							<br />
+							<div>
+								<input type="email" th:field="*{email}" class="form-control"
+									placeholder="E-Mail-Adresse" required />
+								</td>
+							</div>
+							<br />
+
+							<div class="float-left">
+									<div class="form-check-inline">
+									<label class="form-check-label"> <input type="radio"
+									th:field="*{role}" 
+										class="form-check-input" name="optradio" value="USER" checked>User
+									</label>
+								</div>
+								<div class="form-check-inline">
+									<label class="form-check-label"> <input type="radio"
+									th:field="*{role}" class="form-check-input" name="optradio" value="ADMIN">Administrator
+									</label>
+								</div>
+
+								</div>
+							<br/>
+							<br/>
+							<div class="float-left">
+								<button type="submit" class="btn btn-outline-success">Erfassen</button>
+								<button type="button" class="btn btn-outline-danger" data-dismiss="modal">Abbrechen</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Modal footer -->
+			<div class="modal-footer"></div>
+
+		</div>
+	</div>
+</div>
+	</div>
+	
+		</body>
